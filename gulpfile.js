@@ -9,7 +9,8 @@ var gulp = require('gulp'),
 	imagemin = require('gulp-imagemin'),
 	pngquant = require('imagemin-pngquant'),
 	cache = require('gulp-cache'),
-	autoprefixer = require('gulp-autoprefixer');
+	autoprefixer = require('gulp-autoprefixer'),
+	babel = require('gulp-babel');
 
 
 gulp.task('sass', function(){
@@ -45,7 +46,15 @@ gulp.task('css-libs', ['sass'], function() {
         .pipe(gulp.dest('app/css'));
 });
 
-gulp.task('watch', ['browser-sync', 'css-libs', 'scripts'], function() {
+gulp.task('babel-js', function() {
+	return gulp.src('app/js/main.js')
+				.pipe(babel({
+					presets: ['env']
+				}))
+				.pipe(gulp.dest('dist/js'))
+})
+
+gulp.task('watch', ['browser-sync', 'css-libs', 'scripts', 'babel-js'], function() {
 	gulp.watch('app/sass/**/*.sass', ['sass']);
 	gulp.watch('app/*.html', browserSync.reload);
 	gulp.watch('app/js/**/*.js', browserSync.reload);
@@ -62,7 +71,7 @@ gulp.task('img', function() {
 		.pipe(gulp.dest('dist/img'))
 });
 
-gulp.task('build', ['clean', 'img', 'sass', 'scripts'], function(){
+gulp.task('build', ['clean', 'img', 'sass', 'scripts', 'babel-js'], function(){
 
 	var buildHtml = gulp.src('app/*.html')
 		.pipe(gulp.dest('dist'))
